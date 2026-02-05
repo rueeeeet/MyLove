@@ -1,0 +1,26 @@
+VIDEO FILES GUIDE
+=================
+
+Add your video files here!
+
+Required Videos:
+---------------
+1. adventure.mp4 - A video of your adventures together
+
+Video Specifications:
+--------------------
+- Format: MP4 (H.264 codec recommended)
+- Recommended size: 1280x720 (720p) or 1920x1080 (1080p)
+- Keep file sizes reasonable (under 50MB for web)
+- Duration: 30 seconds to 2 minutes works best
+
+Tips:
+-----
+- Compress videos using tools like HandBrake or online compressors
+- Test the video plays in your browser before deploying
+- You can use your phone's video editor to trim and compress
+
+Optional:
+---------
+Create a thumbnail image (adventure-poster.jpg) for the video
+to show before it plays!

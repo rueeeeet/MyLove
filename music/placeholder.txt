@@ -1,0 +1,34 @@
+BACKGROUND MUSIC GUIDE
+======================
+
+Add your romantic song here!
+
+Required File:
+-------------
+1. love-song.mp3 - Your chosen background music
+
+Music Specifications:
+--------------------
+- Format: MP3 (recommended) or OGG
+- Bitrate: 128kbps or 192kbps
+- Keep file size under 10MB
+- Choose a soft, romantic instrumental or love song
+
+Song Suggestions:
+----------------
+- "Can't Help Falling in Love" - Elvis Presley
+- "Perfect" - Ed Sheeran (Instrumental)
+- "A Thousand Years" - Christina Perri
+- "All of Me" - John Legend (Instrumental)
+- Any song that's meaningful to your relationship!
+
+Where to Get Music:
+------------------
+- Use royalty-free music from YouTube Audio Library
+- Convert your favorite songs (for personal use only)
+- Use instrumental versions to avoid copyright issues
+
+Note:
+-----
+Make sure the filename is exactly: love-song.mp3
+Or update the filename in index.html if you use a different name.

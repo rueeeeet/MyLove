@@ -1,0 +1,30 @@
+PLACEHOLDER IMAGES GUIDE
+========================
+
+Replace these placeholder instructions with your actual photos!
+
+Required Images:
+---------------
+1. first-meet.jpg - Photo from when you first met
+2. first-date.jpg - Photo from your first date
+3. special-moment.jpg - Any special moment together
+4. recent.jpg - A recent photo of you both
+5. adventure-poster.jpg - Thumbnail for video (optional)
+
+Image Specifications:
+--------------------
+- Format: JPG, PNG, or WEBP
+- Recommended size: 800x600 pixels or larger
+- Keep file sizes under 2MB for faster loading
+
+Quick Tip:
+----------
+You can use any photo editing app to resize your images before uploading.
+Make sure the filenames match exactly what's in the HTML!
+
+Temporary Solution:
+------------------
+Until you add your photos, the site will show broken image icons.
+To create quick placeholders, you can use:
+- https://via.placeholder.com/800x600
+- Or use any photo editing software to create colored rectangles with text
