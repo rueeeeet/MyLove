@@ -16,7 +16,7 @@ html::-webkit-scrollbar {
 }
 
 body {
-    font-family: 'Cormorant Garamond', 'Poppins', serif;
+    font-family: 'Poppins', sans-serif;
     background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 25%, #ff9a9e 50%, #fecfef 75%, #ffecd2 100%);
     background-size: 400% 400%;
     background-attachment: fixed;
@@ -409,7 +409,7 @@ h1 {
     height: 5px;
     background: #fff;
     border-radius: 50%;
-    animation: sparkleAnimation 3s infinite;
+    animation: sparkleAnimation 2s infinite;
     opacity: 0;
     z-index: 1;
     box-shadow: 0 0 10px #fff, 0 0 20px #fff;
@@ -595,24 +595,28 @@ h1 {
     }
 }
 
-/* Reduce visual load while videos play on mobile */
-@media (max-width: 768px) {
-    body.video-playing {
-        animation-duration: 30s;
-    }
+/* Stop all visual effects while video is playing */
+body.video-playing {
+    animation: none !important;
+    background-attachment: scroll;
+}
 
-    body.video-playing .heart,
-    body.video-playing .petal,
-    body.video-playing .rose,
-    body.video-playing .butterfly,
-    body.video-playing .sparkle,
-    body.video-playing .star {
-        opacity: 0.6;
-    }
+body.video-playing,
+body.video-playing * {
+    animation-play-state: paused !important;
+}
 
-    body.video-playing .timeline-content {
-        box-shadow: 0 6px 20px rgba(212, 20, 90, 0.2);
-    }
+body.video-playing .heart,
+body.video-playing .petal,
+body.video-playing .rose,
+body.video-playing .butterfly,
+body.video-playing .sparkle,
+body.video-playing .star {
+    display: none;
+}
+
+body.video-playing .timeline-content {
+    box-shadow: 0 6px 20px rgba(212, 20, 90, 0.2);
 }
 
 /* Journey Timeline Section */
@@ -742,7 +746,13 @@ h1 {
     box-shadow: 0 10px 40px rgba(212, 20, 90, 0.25);
     border: 2px solid rgba(212, 20, 90, 0.2);
     transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+    animation: cardBreath 8s ease-in-out infinite;
     will-change: transform, box-shadow;
+}
+
+@keyframes cardBreath {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
 }
 
 .timeline-item.reveal .timeline-content {
@@ -921,8 +931,14 @@ h1 {
     color: rgba(255, 255, 255, 0.9);
     cursor: pointer;
     transition: all 0.3s ease;
+    animation: playPulse 2.4s ease-in-out infinite;
     z-index: 100;
     will-change: transform, background;
+}
+
+@keyframes playPulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); box-shadow: 0 0 0 rgba(255, 255, 255, 0); }
+    50% { transform: translate(-50%, -50%) scale(1.08); box-shadow: 0 0 18px rgba(255, 255, 255, 0.35); }
 }
 
 .video-play-button:hover {

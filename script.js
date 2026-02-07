@@ -39,7 +39,7 @@ function createSparkle() {
 
     setTimeout(() => {
         sparkle.remove();
-    }, 3000);
+    }, 2000);
 }
 
 // Create floating roses
@@ -84,69 +84,38 @@ function createStar() {
 
     setTimeout(() => {
         star.remove();
-    }, 5000);
+    }, 4000);
 }
 
 // Generate hearts, petals, and sparkles continuously - optimized for mobile
 const isMobile = window.innerWidth <= 768;
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let animationIntervals = [];
-let ambientMode = 'normal';
 
-const ambientConfigs = isMobile
-    ? {
-        normal: [
-            [createHeart, 650],
-            [createPetal, 600],
-            [createSparkle, 480],
-            [createRose, 3500],
-            [createButterfly, 5000],
-            [createStar, 1200]
-        ],
-        low: [
-            [createHeart, 1100],
-            [createPetal, 1000],
-            [createSparkle, 900],
-            [createRose, 6000],
-            [createButterfly, 8000],
-            [createStar, 2200]
-        ]
-    }
-    : {
-        normal: [
-            [createHeart, 300],
-            [createPetal, 240],
-            [createSparkle, 160],
-            [createRose, 1500],
-            [createButterfly, 2000],
-            [createStar, 600]
-        ],
-        low: [
-            [createHeart, 450],
-            [createPetal, 360],
-            [createSparkle, 260],
-            [createRose, 2200],
-            [createButterfly, 3000],
-            [createStar, 900]
-        ]
-    };
-
-function startAmbientAnimations(mode = 'normal') {
+function startAmbientAnimations() {
     if (reduceMotion) {
         return;
     }
 
-    const config = ambientConfigs[mode] || ambientConfigs.normal;
-    stopAmbientAnimations();
-    ambientMode = mode;
-    animationIntervals = config.map(([fn, ms]) => setInterval(fn, ms));
-}
+    const config = isMobile
+        ? [
+            [createHeart, 900],
+            [createPetal, 800],
+            [createSparkle, 700],
+            [createRose, 4500],
+            [createButterfly, 6000],
+            [createStar, 1600]
+        ]
+        : [
+            [createHeart, 400],
+            [createPetal, 300],
+            [createSparkle, 200],
+            [createRose, 2000],
+            [createButterfly, 2500],
+            [createStar, 800]
+        ];
 
-function setAmbientMode(mode) {
-    if (ambientMode === mode) {
-        return;
-    }
-    startAmbientAnimations(mode);
+    animationIntervals = config.map(([fn, ms]) => setInterval(fn, ms));
 }
 
 function stopAmbientAnimations() {
@@ -184,14 +153,14 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Create initial romantic elements
-for(let i = 0; i < 16; i++) {  // Increased from 12 to 16
+for(let i = 0; i < 12; i++) {  // Increased from 8 to 12
     setTimeout(createHeart, i * 150);
     setTimeout(createPetal, i * 200);
     setTimeout(createSparkle, i * 100);
 }
 
 // Create initial roses, butterflies, and stars
-for(let i = 0; i < 7; i++) {  // Increased from 5 to 7
+for(let i = 0; i < 5; i++) {  // Increased from 3 to 5
     setTimeout(createRose, i * 800);
     setTimeout(createButterfly, i * 1000);
     setTimeout(createStar, i * 250);
@@ -220,6 +189,10 @@ function closeLightbox() {
 
 // Scroll animations for timeline items
 function revealTimeline() {
+    if (document.body.classList.contains('video-playing')) {
+        return;
+    }
+
     const timelineItems = document.querySelectorAll('.timeline-item');
     
     timelineItems.forEach((item, index) => {
@@ -239,16 +212,6 @@ function preloadAllMedia() {
     images.forEach(img => {
         const tempImg = new Image();
         tempImg.src = img.src;
-    });
-    
-    // Set preload attribute for all videos
-    const videos = document.querySelectorAll('video');
-    videos.forEach(video => {
-        if (isMobile) {
-            video.preload = 'metadata';
-        } else if (!video.hasAttribute('preload')) {
-            video.preload = 'auto';
-        }
     });
 }
 
@@ -277,10 +240,14 @@ function setupVideoObserver() {
 
     // Setup video properties
     videos.forEach(video => {
+        video.muted = false;
         video.playsInline = true;
         video.loop = true;
         video.autoplay = false;
+        video.removeAttribute('muted');
         video.setAttribute('playsinline', '');
+        video.setAttribute('preload', 'metadata');
+        video.dataset.preload = 'metadata';
     });
     
     // Create intersection observer
@@ -296,6 +263,11 @@ function setupVideoObserver() {
             const playButton = video.parentElement.querySelector('.video-play-button');
             
             if (entry.isIntersecting) {
+                if (video.dataset.preload !== 'auto') {
+                    video.setAttribute('preload', 'auto');
+                    video.dataset.preload = 'auto';
+                    video.load();
+                }
                 // Video is in view - show button if paused, hide if playing
                 if (!video.paused && playButton) {
                     playButton.style.display = 'none';
@@ -326,11 +298,11 @@ function playVideo(button) {
     const container = button.parentElement;
     const video = container.querySelector('video');
     if (video) {
-        video.muted = false;
         video.play().catch(error => {
             console.log('Play error:', error);
         });
         button.style.display = 'none';
+        updateVideoPlayingState();
         
         // Show play button again if video pauses
         video.addEventListener('pause', () => {
@@ -339,35 +311,42 @@ function playVideo(button) {
     }
 }
 
-// Reduce background effects while any video is playing on mobile
-if (isMobile) {
-    document.addEventListener('play', (event) => {
-        if (event.target && event.target.tagName === 'VIDEO') {
-            document.body.classList.add('video-playing');
-            setAmbientMode('low');
-        }
-    }, true);
+function updateVideoPlayingState() {
+    const videos = document.querySelectorAll('.timeline-video');
+    const anyPlaying = Array.from(videos).some((video) => !video.paused && !video.ended);
+    document.body.classList.toggle('video-playing', anyPlaying);
 
-    document.addEventListener('pause', (event) => {
-        if (event.target && event.target.tagName === 'VIDEO') {
-            document.body.classList.remove('video-playing');
-            setAmbientMode('normal');
-        }
-    }, true);
-
-    document.addEventListener('ended', (event) => {
-        if (event.target && event.target.tagName === 'VIDEO') {
-            document.body.classList.remove('video-playing');
-            setAmbientMode('normal');
-        }
-    }, true);
+    if (anyPlaying) {
+        stopAmbientAnimations();
+    } else {
+        startAmbientAnimations();
+    }
 }
+
+// Stop all effects while any video is playing
+document.addEventListener('play', (event) => {
+    if (event.target && event.target.tagName === 'VIDEO') {
+        updateVideoPlayingState();
+    }
+}, true);
+
+document.addEventListener('pause', (event) => {
+    if (event.target && event.target.tagName === 'VIDEO') {
+        updateVideoPlayingState();
+    }
+}, true);
+
+document.addEventListener('ended', (event) => {
+    if (event.target && event.target.tagName === 'VIDEO') {
+        updateVideoPlayingState();
+    }
+}, true);
 
 // Pause ambient animations when tab is hidden
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         stopAmbientAnimations();
-    } else {
-        startAmbientAnimations(ambientMode);
+    } else if (!document.body.classList.contains('video-playing')) {
+        startAmbientAnimations();
     }
 });
