@@ -87,13 +87,43 @@ function createStar() {
     }, 4000);
 }
 
-// Generate hearts, petals, and sparkles continuously
-setInterval(createHeart, 400);  // More frequent hearts
-setInterval(createPetal, 300);   // More frequent petals
-setInterval(createSparkle, 200); // More frequent sparkles
-setInterval(createRose, 2000);   // More frequent roses
-setInterval(createButterfly, 2500); // More frequent butterflies
-setInterval(createStar, 800);    // More frequent stars
+// Generate hearts, petals, and sparkles continuously - optimized for mobile
+const isMobile = window.innerWidth <= 768;
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let animationIntervals = [];
+
+function startAmbientAnimations() {
+    if (reduceMotion) {
+        return;
+    }
+
+    const config = isMobile
+        ? [
+            [createHeart, 900],
+            [createPetal, 800],
+            [createSparkle, 700],
+            [createRose, 4500],
+            [createButterfly, 6000],
+            [createStar, 1600]
+        ]
+        : [
+            [createHeart, 400],
+            [createPetal, 300],
+            [createSparkle, 200],
+            [createRose, 2000],
+            [createButterfly, 2500],
+            [createStar, 800]
+        ];
+
+    animationIntervals = config.map(([fn, ms]) => setInterval(fn, ms));
+}
+
+function stopAmbientAnimations() {
+    animationIntervals.forEach((id) => clearInterval(id));
+    animationIntervals = [];
+}
+
+startAmbientAnimations();
 
 // Show popup message
 function showLoveMessage() {
@@ -171,6 +201,26 @@ function revealTimeline() {
     });
 }
 
+// Preload all images and videos on page load
+function preloadAllMedia() {
+    // Preload all images
+    const images = document.querySelectorAll('img');
+    images.forEach(img => {
+        const tempImg = new Image();
+        tempImg.src = img.src;
+    });
+    
+    // Set preload attribute for all videos
+    const videos = document.querySelectorAll('video');
+    videos.forEach(video => {
+        if (isMobile) {
+            video.preload = 'metadata';
+        } else if (!video.hasAttribute('preload')) {
+            video.preload = 'auto';
+        }
+    });
+}
+
 // Initialize timeline animations
 window.addEventListener('load', () => {
     const timelineItems = document.querySelectorAll('.timeline-item');
@@ -178,10 +228,14 @@ window.addEventListener('load', () => {
         item.classList.add('hidden');
     });
     
+    // Preload all media files in background
+    preloadAllMedia();
+    
     revealTimeline();
 });
 
-window.addEventListener('scroll', revealTimeline);
+// Use passive event listener for better scroll performance
+window.addEventListener('scroll', revealTimeline, { passive: true });
 
 // Video Auto-play/Pause based on visibility
 function setupVideoObserver() {
@@ -192,11 +246,9 @@ function setupVideoObserver() {
 
     // Setup video properties
     videos.forEach(video => {
-        video.muted = false;
         video.playsInline = true;
         video.loop = true;
         video.autoplay = false;
-        video.removeAttribute('muted');
         video.setAttribute('playsinline', '');
     });
     
@@ -243,6 +295,7 @@ function playVideo(button) {
     const container = button.parentElement;
     const video = container.querySelector('video');
     if (video) {
+        video.muted = false;
         video.play().catch(error => {
             console.log('Play error:', error);
         });
@@ -254,3 +307,36 @@ function playVideo(button) {
         });
     }
 }
+
+// Reduce background effects while any video is playing on mobile
+if (isMobile) {
+    document.addEventListener('play', (event) => {
+        if (event.target && event.target.tagName === 'VIDEO') {
+            document.body.classList.add('video-playing');
+            stopAmbientAnimations();
+        }
+    }, true);
+
+    document.addEventListener('pause', (event) => {
+        if (event.target && event.target.tagName === 'VIDEO') {
+            document.body.classList.remove('video-playing');
+            startAmbientAnimations();
+        }
+    }, true);
+
+    document.addEventListener('ended', (event) => {
+        if (event.target && event.target.tagName === 'VIDEO') {
+            document.body.classList.remove('video-playing');
+            startAmbientAnimations();
+        }
+    }, true);
+}
+
+// Pause ambient animations when tab is hidden
+document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+        stopAmbientAnimations();
+    } else if (!document.body.classList.contains('video-playing')) {
+        startAmbientAnimations();
+    }
+});
