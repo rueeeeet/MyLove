@@ -39,7 +39,7 @@ function createSparkle() {
 
     setTimeout(() => {
         sparkle.remove();
-    }, 2000);
+    }, 3000);
 }
 
 // Create floating roses
@@ -84,38 +84,69 @@ function createStar() {
 
     setTimeout(() => {
         star.remove();
-    }, 4000);
+    }, 5000);
 }
 
 // Generate hearts, petals, and sparkles continuously - optimized for mobile
 const isMobile = window.innerWidth <= 768;
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 let animationIntervals = [];
+let ambientMode = 'normal';
 
-function startAmbientAnimations() {
+const ambientConfigs = isMobile
+    ? {
+        normal: [
+            [createHeart, 650],
+            [createPetal, 600],
+            [createSparkle, 480],
+            [createRose, 3500],
+            [createButterfly, 5000],
+            [createStar, 1200]
+        ],
+        low: [
+            [createHeart, 1100],
+            [createPetal, 1000],
+            [createSparkle, 900],
+            [createRose, 6000],
+            [createButterfly, 8000],
+            [createStar, 2200]
+        ]
+    }
+    : {
+        normal: [
+            [createHeart, 300],
+            [createPetal, 240],
+            [createSparkle, 160],
+            [createRose, 1500],
+            [createButterfly, 2000],
+            [createStar, 600]
+        ],
+        low: [
+            [createHeart, 450],
+            [createPetal, 360],
+            [createSparkle, 260],
+            [createRose, 2200],
+            [createButterfly, 3000],
+            [createStar, 900]
+        ]
+    };
+
+function startAmbientAnimations(mode = 'normal') {
     if (reduceMotion) {
         return;
     }
 
-    const config = isMobile
-        ? [
-            [createHeart, 900],
-            [createPetal, 800],
-            [createSparkle, 700],
-            [createRose, 4500],
-            [createButterfly, 6000],
-            [createStar, 1600]
-        ]
-        : [
-            [createHeart, 400],
-            [createPetal, 300],
-            [createSparkle, 200],
-            [createRose, 2000],
-            [createButterfly, 2500],
-            [createStar, 800]
-        ];
-
+    const config = ambientConfigs[mode] || ambientConfigs.normal;
+    stopAmbientAnimations();
+    ambientMode = mode;
     animationIntervals = config.map(([fn, ms]) => setInterval(fn, ms));
+}
+
+function setAmbientMode(mode) {
+    if (ambientMode === mode) {
+        return;
+    }
+    startAmbientAnimations(mode);
 }
 
 function stopAmbientAnimations() {
@@ -153,14 +184,14 @@ document.addEventListener('keydown', (e) => {
 });
 
 // Create initial romantic elements
-for(let i = 0; i < 12; i++) {  // Increased from 8 to 12
+for(let i = 0; i < 16; i++) {  // Increased from 12 to 16
     setTimeout(createHeart, i * 150);
     setTimeout(createPetal, i * 200);
     setTimeout(createSparkle, i * 100);
 }
 
 // Create initial roses, butterflies, and stars
-for(let i = 0; i < 5; i++) {  // Increased from 3 to 5
+for(let i = 0; i < 7; i++) {  // Increased from 5 to 7
     setTimeout(createRose, i * 800);
     setTimeout(createButterfly, i * 1000);
     setTimeout(createStar, i * 250);
@@ -313,21 +344,21 @@ if (isMobile) {
     document.addEventListener('play', (event) => {
         if (event.target && event.target.tagName === 'VIDEO') {
             document.body.classList.add('video-playing');
-            stopAmbientAnimations();
+            setAmbientMode('low');
         }
     }, true);
 
     document.addEventListener('pause', (event) => {
         if (event.target && event.target.tagName === 'VIDEO') {
             document.body.classList.remove('video-playing');
-            startAmbientAnimations();
+            setAmbientMode('normal');
         }
     }, true);
 
     document.addEventListener('ended', (event) => {
         if (event.target && event.target.tagName === 'VIDEO') {
             document.body.classList.remove('video-playing');
-            startAmbientAnimations();
+            setAmbientMode('normal');
         }
     }, true);
 }
@@ -336,7 +367,7 @@ if (isMobile) {
 document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
         stopAmbientAnimations();
-    } else if (!document.body.classList.contains('video-playing')) {
-        startAmbientAnimations();
+    } else {
+        startAmbientAnimations(ambientMode);
     }
 });

@@ -16,7 +16,7 @@ html::-webkit-scrollbar {
 }
 
 body {
-    font-family: 'Poppins', sans-serif;
+    font-family: 'Cormorant Garamond', 'Poppins', serif;
     background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 25%, #ff9a9e 50%, #fecfef 75%, #ffecd2 100%);
     background-size: 400% 400%;
     background-attachment: fixed;
@@ -409,7 +409,7 @@ h1 {
     height: 5px;
     background: #fff;
     border-radius: 50%;
-    animation: sparkleAnimation 2s infinite;
+    animation: sparkleAnimation 3s infinite;
     opacity: 0;
     z-index: 1;
     box-shadow: 0 0 10px #fff, 0 0 20px #fff;
@@ -598,8 +598,7 @@ h1 {
 /* Reduce visual load while videos play on mobile */
 @media (max-width: 768px) {
     body.video-playing {
-        animation: none;
-        background-attachment: scroll;
+        animation-duration: 30s;
     }
 
     body.video-playing .heart,
@@ -608,7 +607,7 @@ h1 {
     body.video-playing .butterfly,
     body.video-playing .sparkle,
     body.video-playing .star {
-        display: none;
+        opacity: 0.6;
     }
 
     body.video-playing .timeline-content {
