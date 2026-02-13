@@ -189,10 +189,6 @@ function closeLightbox() {
 
 // Scroll animations for timeline items
 function revealTimeline() {
-    if (document.body.classList.contains('video-playing')) {
-        return;
-    }
-
     const timelineItems = document.querySelectorAll('.timeline-item');
     
     timelineItems.forEach((item, index) => {
@@ -212,6 +208,12 @@ function preloadAllMedia() {
     images.forEach(img => {
         const tempImg = new Image();
         tempImg.src = img.src;
+    });
+    
+    // Set preload attribute for all videos
+    const videos = document.querySelectorAll('video');
+    videos.forEach(video => {
+        video.preload = 'auto';
     });
 }
 
@@ -246,8 +248,6 @@ function setupVideoObserver() {
         video.autoplay = false;
         video.removeAttribute('muted');
         video.setAttribute('playsinline', '');
-        video.setAttribute('preload', 'metadata');
-        video.dataset.preload = 'metadata';
     });
     
     // Create intersection observer
@@ -263,11 +263,6 @@ function setupVideoObserver() {
             const playButton = video.parentElement.querySelector('.video-play-button');
             
             if (entry.isIntersecting) {
-                if (video.dataset.preload !== 'auto') {
-                    video.setAttribute('preload', 'auto');
-                    video.dataset.preload = 'auto';
-                    video.load();
-                }
                 // Video is in view - show button if paused, hide if playing
                 if (!video.paused && playButton) {
                     playButton.style.display = 'none';
@@ -302,7 +297,6 @@ function playVideo(button) {
             console.log('Play error:', error);
         });
         button.style.display = 'none';
-        updateVideoPlayingState();
         
         // Show play button again if video pauses
         video.addEventListener('pause', () => {
@@ -311,36 +305,29 @@ function playVideo(button) {
     }
 }
 
-function updateVideoPlayingState() {
-    const videos = document.querySelectorAll('.timeline-video');
-    const anyPlaying = Array.from(videos).some((video) => !video.paused && !video.ended);
-    document.body.classList.toggle('video-playing', anyPlaying);
+// Reduce background effects while any video is playing on mobile
+if (isMobile) {
+    document.addEventListener('play', (event) => {
+        if (event.target && event.target.tagName === 'VIDEO') {
+            document.body.classList.add('video-playing');
+            stopAmbientAnimations();
+        }
+    }, true);
 
-    if (anyPlaying) {
-        stopAmbientAnimations();
-    } else {
-        startAmbientAnimations();
-    }
+    document.addEventListener('pause', (event) => {
+        if (event.target && event.target.tagName === 'VIDEO') {
+            document.body.classList.remove('video-playing');
+            startAmbientAnimations();
+        }
+    }, true);
+
+    document.addEventListener('ended', (event) => {
+        if (event.target && event.target.tagName === 'VIDEO') {
+            document.body.classList.remove('video-playing');
+            startAmbientAnimations();
+        }
+    }, true);
 }
-
-// Stop all effects while any video is playing
-document.addEventListener('play', (event) => {
-    if (event.target && event.target.tagName === 'VIDEO') {
-        updateVideoPlayingState();
-    }
-}, true);
-
-document.addEventListener('pause', (event) => {
-    if (event.target && event.target.tagName === 'VIDEO') {
-        updateVideoPlayingState();
-    }
-}, true);
-
-document.addEventListener('ended', (event) => {
-    if (event.target && event.target.tagName === 'VIDEO') {
-        updateVideoPlayingState();
-    }
-}, true);
 
 // Pause ambient animations when tab is hidden
 document.addEventListener('visibilitychange', () => {
